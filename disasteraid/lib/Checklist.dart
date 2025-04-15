@@ -1,46 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Emergency Checklist',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home Page')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigating to ListPage (Checklist)
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ListPage()),
-            );
-          },
-          child: const Text('Go to Emergency Checklist'),
-        ),
-      ),
-    );
-  }
-}
+import 'package:hive/hive.dart';
 
 class ListPage extends StatefulWidget {
   const ListPage({super.key});
@@ -50,37 +9,51 @@ class ListPage extends StatefulWidget {
 }
 
 class _ListPageState extends State<ListPage> {
-  // List of items for the checklist
-  List<String> _items = [
-    "A supply of water",
-    "A supply of canned food",
-    "Flashlight and batteries",
-  ];
-
-  // Track whether each item is checked
+  late Box box;
+  List<String> _items = [];
   List<bool> _checkedItems = [];
 
   @override
   void initState() {
     super.initState();
-    // Initialize the checkedItems list with false for each item
-    _checkedItems = List.generate(_items.length, (index) => false);
+    box = Hive.box('checklistBox');
+    _loadChecklist();
   }
 
-  // Function to handle adding a new item to the checklist
+  void _loadChecklist() {
+    _items = List<String>.from(box.get('items', defaultValue: []));
+    _checkedItems = List<bool>.from(
+      box.get('checks', defaultValue: List<bool>.filled(_items.length, false)),
+    );
+    setState(() {});
+  }
+
+  void _saveChecklist() {
+    box.put('items', _items);
+    box.put('checks', _checkedItems);
+  }
+
   void _addItem(String newItem) {
     setState(() {
-      _items.add(newItem); 
-      _checkedItems.add(false); 
+      _items.add(newItem);
+      _checkedItems.add(false);
     });
+    _saveChecklist();
   }
 
-  // Function to handle deleting an item from the checklist
   void _deleteItem(int index) {
     setState(() {
       _items.removeAt(index);
       _checkedItems.removeAt(index);
     });
+    _saveChecklist();
+  }
+
+  void _toggleCheck(int index, bool value) {
+    setState(() {
+      _checkedItems[index] = value;
+    });
+    _saveChecklist();
   }
 
   @override
@@ -89,7 +62,6 @@ class _ListPageState extends State<ListPage> {
       appBar: AppBar(title: const Text('Emergency Checklist')),
       body: Column(
         children: [
-          // Displaying the checklist
           Expanded(
             child: ListView.builder(
               itemCount: _items.length,
@@ -99,9 +71,7 @@ class _ListPageState extends State<ListPage> {
                   leading: Checkbox(
                     value: _checkedItems[index],
                     onChanged: (bool? value) {
-                      setState(() {
-                        _checkedItems[index] = value!;
-                      });
+                      _toggleCheck(index, value ?? false);
                     },
                   ),
                   trailing: IconButton(
@@ -114,12 +84,10 @@ class _ListPageState extends State<ListPage> {
               },
             ),
           ),
-          // Button to add a new item
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                // Show a dialog to input a new checklist item
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -132,9 +100,7 @@ class _ListPageState extends State<ListPage> {
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+                          onPressed: () => Navigator.of(context).pop(),
                           child: const Text('Cancel'),
                         ),
                         TextButton(
