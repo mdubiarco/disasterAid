@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:hive/hive.dart';
+
 import 'SurvivalGuidePage.dart';
 import 'Checklist.dart';
 import 'Safety_Routes.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Use a temp directory 
+  final directory = Directory.systemTemp.createTempSync();
+  Hive.init(directory.path);
+
+  // Open the checklist Hive box
+  await Hive.openBox('checklistBox');
+
   runApp(const MyApp());
 }
 
@@ -15,13 +27,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DisasterAid',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue), 
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const MyHomePage(),
     );
   }
 }
+
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
