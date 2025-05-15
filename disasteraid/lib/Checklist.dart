@@ -13,6 +13,14 @@ class _ListPageState extends State<ListPage> {
   List<String> _items = [];
   List<bool> _checkedItems = [];
 
+  // Pre-generated items
+  final List<String> _defaultItems = [
+    'Water Bottles',
+    'First Aid Kit',
+    'Flashlight',
+    'Batteries',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -21,7 +29,7 @@ class _ListPageState extends State<ListPage> {
   }
 
   void _loadChecklist() {
-    _items = List<String>.from(box.get('items', defaultValue: []));
+    _items = List<String>.from(box.get('items', defaultValue: _defaultItems));
     _checkedItems = List<bool>.from(
       box.get('checks', defaultValue: List<bool>.filled(_items.length, false)),
     );
@@ -84,8 +92,9 @@ class _ListPageState extends State<ListPage> {
               },
             ),
           ),
+          
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 20.0), 
             child: ElevatedButton(
               onPressed: () {
                 showDialog(

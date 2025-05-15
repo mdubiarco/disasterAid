@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'SurvivalGuidePage.dart';
 import 'Checklist.dart';
 import 'Safety_Routes.dart';
+import 'Resources.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,65 +39,59 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Set the entire background color to blue
-      backgroundColor: Colors.blue,
       
-      appBar: AppBar(
-        backgroundColor: Colors.blue.shade500, 
-        automaticallyImplyLeading: false, 
-      ),
-  
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[ 
-            // "Get Prepared" box 
-            _buildGetPreparedBox(),
-            SizedBox(height: 30),
-            // Buttons for Survival Guide, Emergency Checklist & Saftey Routes
-            _buildButton(context, 'Survival Guide', const LocationPage()),
-            SizedBox(height: 20), 
-            _buildButton(context, 'Emergency Checklist', const ListPage()),
-            SizedBox(height: 20), 
-            _buildButton(context, 'Safety Routes', const NearbyHelpPage()),
-            SizedBox(height: 20),
-          ],
-        ),
+      body: Stack(
+        children: <Widget>[
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'data/download.jpg',  
+              fit: BoxFit.cover,     
+            ),
+          ),
+          // Main body content
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                
+                Padding(
+                  padding: const EdgeInsets.only(top: 40), 
+                  child: _buildGetPreparedBox(),
+                ),
+                const SizedBox(height: 30), 
+                
+                
+                const SizedBox(height: 30), 
+                
+                
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16.0,
+                    mainAxisSpacing: 16.0,
+                    childAspectRatio: 1.0,
+                    children: <Widget>[
+                      _buildButton(context, 'Survival Guide', const LocationPage()),
+                      _buildButton(context, 'Emergency Checklist', const ListPage()),
+                      _buildButton(context, 'Safety Routes', const NearbyHelpPage()),
+                      _buildButton(context, 'Resources', const ResourcesPage()),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  
-  Widget _buildButton(BuildContext context, String label, Widget information_page) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => information_page), 
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.all(16),
-        backgroundColor: Colors.blue.shade50, 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), 
-        ),
-        side: BorderSide(color: Colors.blue, width: 2), 
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-   // Widget for the "Get Prepared" box
+  // Widget for the "Get Prepared" box 
   Widget _buildGetPreparedBox() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -131,4 +126,43 @@ class MyHomePage extends StatelessWidget {
       ),
     );
   }
+
+  
+  Widget _buildButton(BuildContext context, String label, Widget information_page) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => information_page), 
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade50,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 5,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue.shade900,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
 }
+
+
